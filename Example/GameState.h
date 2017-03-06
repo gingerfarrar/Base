@@ -3,23 +3,13 @@
 #include "sfwdraw.h"
 #include "BaseState.h"
 #include "Factory.h"
+#include "constdecl.h"
 
-
-/*
-	The gamestate represents a discrete container of all that is 
-	necessary to drive the game experience.
-
-	A factory object is used to manage the creation and deletion of
-	objects in the simulation.
-
-	The game state updates the entities within the factory using
-	a series of 'systems.'
-*/
 
 class GameState : public BaseState
 {
 	Factory factory;
-	unsigned spr_space, spr_ship, spr_bullet, spr_roid, spr_font;
+	unsigned spr_space, spr_ship, spr_bullet, spr_roid, spr_font, puff_sprite;
 	ObjectPool<Entity>::iterator currentCamera;
 
 public:
@@ -30,6 +20,7 @@ public:
 		spr_ship = sfw::loadTextureMap("../res/ship.png");
 		spr_roid = sfw::loadTextureMap("../res/rock.png");
 		spr_font = sfw::loadTextureMap("../res/font.png",32,4);
+		puff_sprite = sfw::loadTextureMap("../res/particle_sprite.png");
 	}
 
 	virtual void play()
@@ -39,16 +30,22 @@ public:
 
 		// setup a default camera
 		currentCamera = factory.spawnCamera(800, 600, 1);
-		currentCamera->transform->setGlobalPosition(vec2{ 400, 300 });
-
+		currentCamera->camera->offset = vec2{ 400,300 };
+		//currentCamera->transform->setGlobalPosition(vec2{ 400, 300 });
+		
 		// call some spawning functions!
 		factory.spawnStaticImage(spr_space, 0, 0, 800, 600);
 
-		factory.spawnPlayer(spr_ship, spr_font);
+		factory.spawnPlayer(spr_ship, spr_font, puff_sprite);
 		factory.spawnAsteroid(spr_roid);
 		factory.spawnAsteroid(spr_roid);
 		factory.spawnAsteroid(spr_roid);
 		factory.spawnAsteroid(spr_roid);
+
+		//for (int i = 0; i < 200; ++i)
+		{
+			factory.spawnImage(puff_sprite, 0, -20, 50, 50);
+		}
 	}
 
 	virtual void stop()
@@ -56,11 +53,7 @@ public:
 
 	}
 
-	// should return what state we're going to.
-	// REMEMBER TO HAVE ENTRY AND STAY states for each application state!
-	virtual size_t next() const { return 0; }
-
-
+	
 	// update loop, where 'systems' exist
 	virtual void step()
 	{
@@ -73,6 +66,7 @@ public:
 			bool del = false; // does this entity end up dying?
 			auto &e = *it;    // convenience reference
 
+
 			// rigidbody update
 			if (e.transform && e.rigidbody)
 				e.rigidbody->integrate(&e.transform, dt);
@@ -80,6 +74,9 @@ public:
 			// controller update
 			if (e.transform && e.rigidbody && e.controller)
 			{
+				vec2 stuff = currentCamera->transform->getGlobalPosition();
+				stuff = e.transform->getGlobalPosition();
+				currentCamera->transform->setGlobalPosition(stuff);
 				e.controller->poll(&e.transform, &e.rigidbody, dt);
 				if (e.controller->shotRequest) // controller requested a bullet fire
 				{
@@ -102,12 +99,14 @@ public:
 				it->onFree();
 				it.free();
 			}
+			// particle system
+			if (e.part && e.transform && e.sprite)
+			{
+				e.part->update(&e.transform, dt);
+			}
 		}
 
-
 		// Physics system!
-		// You'll want to extend this with custom collision responses
-
 		
 		for(auto it = factory.begin(); it != factory.end(); it++) // for each entity
 			for(auto bit = it; bit != factory.end(); bit++)		  // for every other entity
@@ -129,11 +128,10 @@ public:
 							
 							// condition for static resolution
 							else if (it->rigidbody && !bit->rigidbody)							
-								base::StaticResolution(cd, &it->transform, &it->rigidbody);					
+									base::StaticResolution(cd, &it->transform, &it->rigidbody);					
 						}
 					}
 				}
-
 	}
 
 
@@ -146,12 +144,16 @@ public:
 		for each(auto &e in factory)
 			if (e.transform && e.sprite)
 				e.sprite->draw(&e.transform, cam);
+	
+		for each(auto &e in factory)
+			if (e.transform && e.part)
+				e.part->draw(cam);
+
 
 		// draw text
 		for each(auto &e in factory)
 			if (e.transform && e.text)
 				e.text->draw(&e.transform, cam);
-
 
 #ifdef _DEBUG
 		for each(auto &e in factory)
@@ -167,4 +169,10 @@ public:
 				e.rigidbody->draw(&e.transform, cam);
 #endif
 	}
+
+	virtual size_t next() const 
+	{
+		return GAAMESTATE;
+	}
 };
+

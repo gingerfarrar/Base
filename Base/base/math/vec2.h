@@ -67,4 +67,5 @@ inline vec2 lerp(const vec2 &s, const vec2 &e, float t) { return vec2{ flops::le
 inline bool operator==(const vec2 &a, const vec2 &b) { return flops::fequals(a.x, b.x) && flops::fequals(a.y, b.y); }
 inline bool operator!=(const vec2 &a, const vec2 &b) { return !(a == b); }
 
+
 }

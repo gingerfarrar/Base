@@ -17,7 +17,7 @@ public:
 
 	Rigidbody(float a_mass = 1)
 				: spin(0), torque(0), angularAcceleration(0), angularVelocity(0),
-				  drag(0), mass(a_mass), angularDrag(0) {}
+				  drag(1), mass(a_mass), angularDrag(1) {}
 
 
 	void addForce(const vec2 &a_force)	 { force += a_force; }

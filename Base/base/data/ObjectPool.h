@@ -1,5 +1,6 @@
 #pragma once
 
+
 namespace base
 {
 
@@ -21,7 +22,16 @@ class ObjectPool
 public:
 	// movements like these would invalidate iterators, which we may not want to do.
 	ObjectPool(const ObjectPool&)			 = delete;
-	ObjectPool& operator=(const ObjectPool&) = delete;
+
+	ObjectPool& operator=(const ObjectPool &o) = delete;
+	//{
+	//	if (m_data) delete[] m_data;
+
+	//	m_data = new __intern[m_size = o.m_size];
+
+	//	
+	//}
+
 	ObjectPool(ObjectPool&&)				 = delete;
 	ObjectPool& operator=(ObjectPool&&)		 = delete;
 
@@ -109,9 +119,7 @@ public:
 		size_t idx = it.m_idx;
 		++it;
 
-		// if we are popping the closed head, we need to update the close list
-		// if we are popping left of the vacant head, we need to update the vacant head
-		// if there was a closed next pointing to this index, we have to update it.
+		
 		m_data[idx].open = true;
 		m_data[idx].data = T();
 		/////////////////////////////////////////

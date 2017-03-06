@@ -6,7 +6,7 @@
 
 namespace base
 {
-// The sprite will always be attached to the
+
 class Sprite
 {
 public:
@@ -34,4 +34,3 @@ public:
 };
 
 }
-//sfw::drawTE

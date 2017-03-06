@@ -1,7 +1,6 @@
 #pragma once
-
+#include "ParticleEmitter.h"
 #include "Base.h"
-
 #include "PlayerController.h"
 
 using namespace base;
@@ -17,6 +16,7 @@ public:
 	ObjectPool<Sprite>::iterator sprite;
 	ObjectPool<Camera>::iterator camera;
 	ObjectPool<Text>::iterator text;
+	ObjectPool<ParticleEmitter>::iterator   part;
 
 	// example of a component in this project
 	ObjectPool<PlayerController>::iterator controller;
@@ -32,5 +32,6 @@ public:
 		text.free();
 
 		controller.free();
+		part.free();
 	}
 };

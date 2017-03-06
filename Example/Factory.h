@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Entity.h"
-
+#include "base\data\ObjectPool.h"
+#include "base\Components.h"
 class Factory
 {	
 	ObjectPool<Entity>	  entities;
@@ -15,6 +16,7 @@ class Factory
 	ObjectPool<Camera>    cameras;
 	ObjectPool<Text>	  texts;
 	ObjectPool<PlayerController> controllers;
+	ObjectPool<ParticleEmitter>   particles;
 
 public:
 
@@ -22,17 +24,15 @@ public:
 	ObjectPool<Entity>::iterator begin() { return entities.begin(); }
 	ObjectPool<Entity>::iterator end() { return entities.end(); }
 
-	// for now, they're all the same size
+	
 	Factory(size_t size = 512)
 								: entities(size), transforms(size), rigidbodies(size),
 								  colliders(size), sprites(size), lifetimes(size),
-								  cameras(size), controllers(size), texts(size)
+								  cameras(size), controllers(size), texts(size), particles(size)
 	{
 	}
 
-	// What follows are specialized spawning functions
-	// just observe the steps taken and replicate for your own usages
-
+	
 	ObjectPool<Entity>::iterator spawnCamera(float w2, float h2, float zoom)
 	{
 		auto e = entities.push();
@@ -51,6 +51,23 @@ public:
 		e->sprite->sprite_id = sprite;
 		e->sprite->dimensions = vec2{w,h};
 		e->transform->setLocalPosition(vec2{ x,y });	
+
+		return e;
+	}
+	ObjectPool<Entity>::iterator spawnImage(unsigned sprite, float x, float y, float w, float h, float time = -1)
+	{
+		auto e = entities.push();
+		e->transform = transforms.push();
+		e->sprite = sprites.push();
+		e->sprite->sprite_id = sprite;
+		e->sprite->dimensions = vec2{ w,h };
+		e->transform->setLocalPosition(vec2{ x,y });
+
+		if (time > 0)
+		{
+			e->lifetime = lifetimes.push();
+			e->lifetime->lifespan = time;
+		}
 		return e;
 	}
 
@@ -78,7 +95,7 @@ public:
 		return e;
 	}
 
-	ObjectPool<Entity>::iterator spawnPlayer(unsigned sprite, unsigned font)
+	ObjectPool<Entity>::iterator spawnPlayer(unsigned sprite, unsigned font, unsigned particle)
 	{
 		auto e = entities.push();
 
@@ -98,6 +115,30 @@ public:
 
 		e->sprite->sprite_id = sprite;
 
+
+		e->part = particles.push();
+
+		e->part->sprite = particle;
+		e->part->angHi = 230;
+		e->part->angLo = 310;
+		e->part->colHiEnd.ui_color = RED;
+		e->part->colHiStart.ui_color = YELLOW;
+		e->part->colLoEnd.ui_color = NONE;
+		e->part->colLoStart.ui_color = RED;
+		e->part->dimHiEnd = vec2{ 412,412 };
+		e->part->dimHiStart = vec2{ 32,32 };
+		e->part->dimLoEnd = vec2{ 100,100 };
+		e->part->dimLoStart = vec2{ 8,8 };
+		e->part->emitRateHi = 0.02f;
+		e->part->emitRateLo = 0.01f;
+		e->part->lifespanHi = 3.7f;
+		e->part->lifespanLo = 1.5f;
+		e->part->pos = vec2{ 0, -20 };
+		e->part->spdHi = 200;
+		e->part->spdLo = 100;
+
+
+
 		return e;
 	}
 
@@ -110,6 +151,7 @@ public:
 		e->rigidbody = rigidbodies.push();
 		e->sprite = sprites.push();
 		e->collider = colliders.push();
+		
 
 		e->transform->setLocalScale(vec2{ 48,48 });
 
@@ -119,6 +161,7 @@ public:
 
 		e->sprite->sprite_id = sprite;
 
+		
 		return e;
 	}
 };

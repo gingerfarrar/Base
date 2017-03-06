@@ -126,13 +126,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="constdecl.h" />
+    <ClInclude Include="Depart.h" />
     <ClInclude Include="Entity.h" />
     <ClInclude Include="Factory.h" />
     <ClInclude Include="GameState.h" />
+    <ClInclude Include="Lose.h" />
+    <ClInclude Include="particle.h" />
+    <ClInclude Include="ParticleEmitter.h" />
     <ClInclude Include="PlayerController.h" />
+    <ClInclude Include="Splash.h" />
+    <ClInclude Include="Win.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Depart.cpp" />
+    <ClCompile Include="Lose.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Splash.cpp" />
+    <ClCompile Include="Win.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

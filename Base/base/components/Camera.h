@@ -1,5 +1,4 @@
 #pragma once
-
 #include "compdef.h"
 #include "Transform.h"
 

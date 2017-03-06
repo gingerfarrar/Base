@@ -2,34 +2,73 @@
 #include "sfwdraw.h"
 #include "GameState.h"
 
+#include "Splash.h"
+#include "Lose.h"
+#include "Depart.h"
+#include "Win.h"
 
-/*
-	The main function should be used for application state management.
-	Currently, only one state is implemented here, you'll need to add additional
-	and get them to behave properly.
-*/
 void main()
 {
-	sfw::initContext();
-
-
+	sfw::initContext(800,600);
+	unsigned font = sfw::loadTextureMap("../res/fontmap.png", 16, 16);
+	
 	GameState gs;
 
-	gs.init(); // called once
+	Splash splash;
+	
+	Lose lose;
+	Depart dep;
+	Win win;
 
-	gs.play(); // Should be called each time the state is transitioned into
+	splash.init(font);
+	gs.init(); 
+	gs.play(); 
+	lose.init(font);
+	dep.init(font);
+	win.init(font);
 
+	unsigned state = ENTER_SPLASH;
 	while (sfw::stepContext())
 	{
-		gs.step(); // called each update
-		gs.draw(); // called each update
-
-		//gs.next(); Determine the ID of the next state to transition to.
+		
+		switch (state)
+		{
+		case ENTER_SPLASH:
+			splash.play();
+		case SPLASH:
+			splash.step();
+			splash.draw();
+			state = splash.next();
+			break;
+		case ENTER_DEPART:
+		case DEPART:
+			dep.draw();
+			state = dep.next();
+			break;
+		case ENTER_GAAMESTATE:
+			gs.play();
+		case GAAMESTATE:
+			gs.step();
+			gs.draw();
+			state = gs.next();
+			break;
+		case ENTER_WIN:
+		case WIN:
+			win.draw();
+			state = win.next();
+			break;
+		case ENTER_LOSE:
+			lose.play();
+		case LOSE:
+			lose.step();
+			lose.draw();
+			state = lose.next();
+			break;
+		}
 	}
 
-	gs.stop(); // should be called each time the state is transitioned out of
-
-	gs.term(); // called once
+	gs.stop(); 
+	gs.term(); 
 
 
 	sfw::termContext();
